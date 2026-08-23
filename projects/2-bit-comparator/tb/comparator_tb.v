@@ -38,7 +38,11 @@ module comparator_tb;
 
     // Dumps .vcd file
     initial begin
-        $dumpfile("comparator.vcd");
+        `ifdef VCD_PATH
+            $dumpfile(`VCD_PATH);
+        `else
+            $dumpfile("default.vcd");
+        `endif
         $dumpvars(0, comparator_tb);
     end
 
