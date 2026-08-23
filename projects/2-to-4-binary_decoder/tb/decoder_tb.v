@@ -43,7 +43,12 @@ module decoder_tb;
 
     // Dumps .vcd file
     initial begin
-        $dumpfile("decoder.vcd");
+        `ifdef VCD_PATH
+            $dumpfile(`VCD_PATH);
+        `else
+            $dumpfile("default.vcd");
+        
+        `endif
         $dumpvars(0, decoder_tb);
     end
 
