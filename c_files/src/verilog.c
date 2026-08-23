@@ -142,12 +142,13 @@ Project *get_projects(const char *project_path, int *count) {
 
         // Add all data into the struct
         Project *p = &projects[n];
-        p->src_dir = has_src ? strdup(src_dir) : NULL;
-        p->tb_dir  = has_tb  ? strdup(tb_dir)  : NULL;
-        p->src_files = has_src ? get_files_from_dir_ext(src_dir, ".v", &p->src_count) : NULL;
-        if (!has_src) p->src_count = 0;
-        p->tb_files = has_tb ? get_files_from_dir_ext(tb_dir, "_tb.v", &p->tb_count) : NULL;
-        if (!has_tb) p->tb_count = 0;
+        p -> src_dir = has_src ? strdup(src_dir) : NULL;
+        p -> tb_dir  = has_tb  ? strdup(tb_dir)  : NULL;
+        p -> src_files = has_src ? get_files_from_dir_ext(src_dir, ".v", &p -> src_count) : NULL;
+        if (!has_src) p -> src_count = 0;
+        p -> tb_files = has_tb ? get_files_from_dir_ext(tb_dir, "_tb.v", &p -> tb_count) : NULL;
+        if (!has_tb) p -> tb_count = 0;
+        p -> project_name = entry->d_name; 
         n++;
     }
 

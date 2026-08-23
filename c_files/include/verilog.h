@@ -17,6 +17,7 @@ typedef struct {
     char **tb_files;
     int src_count;
     int tb_count;
+    char *project_name;
 } Project;
 
 // Function prototypes
