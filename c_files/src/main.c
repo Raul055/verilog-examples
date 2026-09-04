@@ -38,12 +38,13 @@ int main(void) {
 
         // Creates cmd
         char cmd[1024];
-        snprintf(cmd, sizeof(cmd), "iverilog -DVCD_PATH=\\\"sim/waveforms/%s.vcd\\\" -o sim/bin/%s.out %s%s", p -> project_name, simulation_name, src_buffer, tb_buffer);
+        snprintf(cmd, sizeof(cmd), "iverilog -DVCD_PATH=\\\"sim/waveforms/%s.vcd\\\" -o sim/bin/%s.vout %s%s", p -> project_name, simulation_name, src_buffer, tb_buffer);
         //printf("%s\n", cmd);
         
         // Adds directories if needed
         system("mkdir -p sim/waveforms");
         system("mkdir -p sim/bin");
+        system("mkdir -p sim/log");
 
         // Makes system call
         int status = system(cmd);
@@ -51,7 +52,7 @@ int main(void) {
         // Depending on status
         if (status == 0) {
             char run_cmd[1024];
-            snprintf(run_cmd, sizeof(run_cmd), "vvp sim/bin/%s.out", simulation_name);
+            snprintf(run_cmd, sizeof(run_cmd), "vvp sim/bin/%s.vout > sim/log/%s.log", simulation_name, simulation_name);
             system(run_cmd);
         } else {
             fprintf(stderr, "Compilation failed for %s\n", p -> project_name);
