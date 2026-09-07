@@ -1,0 +1,36 @@
+module hex_to_7_seg
+    (
+        input wire [3:0] hex,
+        input wire dp,
+        output reg [7:0] _7_seg      // output active low
+    );
+    
+    always @*
+    begin
+        case(hex)
+            // 0 = ON, 1 = OFF
+                                 //gfedcba
+            4'h0: _7_seg[6:0] = 7'b1000000;
+            4'h1: _7_seg[6:0] = 7'b1111001;
+            4'h2: _7_seg[6:0] = 7'b0100100;
+            4'h3: _7_seg[6:0] = 7'b0110000;
+            4'h4: _7_seg[6:0] = 7'b0011001;
+            4'h5: _7_seg[6:0] = 7'b0010010;
+            4'h6: _7_seg[6:0] = 7'b0000010;
+            4'h7: _7_seg[6:0] = 7'b1111000;
+            4'h8: _7_seg[6:0] = 7'b0000000;
+            4'h9: _7_seg[6:0] = 7'b0010000;
+            4'ha: _7_seg[6:0] = 7'b0001000;
+            4'hb: _7_seg[6:0] = 7'b0000011;
+            4'hc: _7_seg[6:0] = 7'b1000110;
+            4'hd: _7_seg[6:0] = 7'b0100001;
+            4'he: _7_seg[6:0] = 7'b0000110;
+            4'hf: _7_seg[6:0] = 7'b0001110;
+            default: _7_seg[6:0] = 7'b1111111; // all segments OFF
+        endcase
+        
+        // For decimal point
+        _7_seg[7] = dp;
+    end
+
+endmodule
