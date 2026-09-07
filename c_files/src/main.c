@@ -15,6 +15,9 @@ int main(void) {
     for (int i = 0; i < count; i++) {
         Project *p = &projects[i];
 
+        // Project name
+        char *project_name = p -> project_name;
+
         // Adds source files into buffer
         char **src_files = p -> src_files;
         char src_buffer[1024];
@@ -22,40 +25,49 @@ int main(void) {
         for (int j = 0; j < (p -> src_count); j++) {
             src_pointer += sprintf(src_pointer, "%s ", src_files[j]);
         }
-        //printf("%s\n", src_buffer);
 
-        // Adds testebench files into buffer
+        // Adds tb files into struct
         char **tb_files = p -> tb_files;
-        char tb_buffer[1024];
-        char *tb_pointer = tb_buffer;
-        for (int j = 0; j < (p -> tb_count); j++) {
-            tb_pointer += sprintf(tb_pointer, "%s ", tb_files[j]);
-        }
-        //printf("%s\n", tb_buffer);
 
-        // Creates simulation name from project
-        char *simulation_name =  strcat(p -> project_name, "_sim");
+        // Creates directories
+        char dir_cmd[1024];
+        snprintf(dir_cmd, sizeof(dir_cmd),
+                 "mkdir -p sim/{waveforms,bin,log}/%s",
+                  project_name);
+        int dir_status = system(dir_cmd);
 
-        // Creates cmd
-        char cmd[1024];
-        snprintf(cmd, sizeof(cmd), "iverilog -DVCD_PATH=\\\"sim/waveforms/%s.vcd\\\" -o sim/bin/%s.vout %s%s", p -> project_name, simulation_name, src_buffer, tb_buffer);
-        //printf("%s\n", cmd);
-        
-        // Adds directories if needed
-        system("mkdir -p sim/waveforms");
-        system("mkdir -p sim/bin");
-        system("mkdir -p sim/log");
+        // Error in mkdir
+        if (dir_status != 0) {printf("Directories could not be done, sorry :(\n"); return 1;}
 
-        // Makes system call
-        int status = system(cmd);
+        // Iterates between each tb file
+        for (int k = 0; k < (p -> tb_count); k++) {
+            char *tb_file = tb_files[k];
 
-        // Depending on status
-        if (status == 0) {
-            char run_cmd[1024];
-            snprintf(run_cmd, sizeof(run_cmd), "vvp sim/bin/%s.vout > sim/log/%s.log", simulation_name, simulation_name);
-            system(run_cmd);
-        } else {
-            fprintf(stderr, "Compilation failed for %s\n", p -> project_name);
+            // Gets base name for each file
+            char tb_base[1024];
+            char *slash = strrchr(tb_file, '/');
+            snprintf(tb_base, sizeof(tb_base), "%s", slash ? slash + 1 : tb_file);
+            char *dot = strrchr(tb_base, '.');
+            if (dot) *dot = '\0';
+
+            // Creates cmd
+            char cmd[1024];
+            snprintf(cmd, sizeof(cmd),
+                     "iverilog -DVCD_PATH=\\\"sim/waveforms/%s/%s.vcd\\\" -o sim/bin/%s/%s.vout %s%s",
+                     project_name, tb_base, project_name, tb_base, src_buffer, tb_file);
+
+            // Makes system call
+            int status = system(cmd);
+
+            // Depending on status
+            if (status == 0) {
+                char run_cmd[1024];
+                snprintf(run_cmd, sizeof(run_cmd), "vvp sim/bin/%s/%s.vout > sim/log/%s/%s.log",
+                                                    project_name, tb_base, project_name, tb_base);
+                system(run_cmd);
+            } else {
+                fprintf(stderr, "Compilation failed for %s\n", tb_base);
+            }
         }
     }
 
