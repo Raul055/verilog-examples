@@ -11,14 +11,12 @@ int main(void) {
     // No projects were found, exit
     if (!projects) { printf("No projects found, sorry :(\n"); return 1; }
 
-    // Adds directories if needed
-    system("mkdir -p sim/waveforms");
-    system("mkdir -p sim/bin");
-    system("mkdir -p sim/log");
-
     // Iterates between all projects
     for (int i = 0; i < count; i++) {
         Project *p = &projects[i];
+
+        // Project name
+        char *project_name = p -> project_name;
 
         // Adds source files into buffer
         char **src_files = p -> src_files;
@@ -30,6 +28,16 @@ int main(void) {
 
         // Adds tb files into struct
         char **tb_files = p -> tb_files;
+
+        // Creates directories
+        char dir_cmd[1024];
+        snprintf(dir_cmd, sizeof(dir_cmd),
+                 "mkdir -p sim/{waveforms,bin,log}/%s",
+                  project_name);
+        int dir_status = system(dir_cmd);
+
+        // Error in mkdir
+        if (dir_status != 0) {printf("Directories could not be done, sorry :(\n"); return 1;}
 
         // Iterates between each tb file
         for (int k = 0; k < (p -> tb_count); k++) {
@@ -45,8 +53,8 @@ int main(void) {
             // Creates cmd
             char cmd[1024];
             snprintf(cmd, sizeof(cmd),
-                     "iverilog -DVCD_PATH=\\\"sim/waveforms/%s.vcd\\\" -o sim/bin/%s.vout %s%s",
-                     tb_base, tb_base, src_buffer, tb_file);
+                     "iverilog -DVCD_PATH=\\\"sim/waveforms/%s/%s.vcd\\\" -o sim/bin/%s/%s.vout %s%s",
+                     project_name, tb_base, project_name, tb_base, src_buffer, tb_file);
 
             // Makes system call
             int status = system(cmd);
@@ -54,7 +62,8 @@ int main(void) {
             // Depending on status
             if (status == 0) {
                 char run_cmd[1024];
-                snprintf(run_cmd, sizeof(run_cmd), "vvp sim/bin/%s.vout > sim/log/%s.log", tb_base, tb_base);
+                snprintf(run_cmd, sizeof(run_cmd), "vvp sim/bin/%s/%s.vout > sim/log/%s/%s.log",
+                                                    project_name, tb_base, project_name, tb_base);
                 system(run_cmd);
             } else {
                 fprintf(stderr, "Compilation failed for %s\n", tb_base);
