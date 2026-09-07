@@ -11,6 +11,11 @@ int main(void) {
     // No projects were found, exit
     if (!projects) { printf("No projects found, sorry :(\n"); return 1; }
 
+    // Adds directories if needed
+    system("mkdir -p sim/waveforms");
+    system("mkdir -p sim/bin");
+    system("mkdir -p sim/log");
+
     // Iterates between all projects
     for (int i = 0; i < count; i++) {
         Project *p = &projects[i];
@@ -41,11 +46,6 @@ int main(void) {
         snprintf(cmd, sizeof(cmd), "iverilog -DVCD_PATH=\\\"sim/waveforms/%s.vcd\\\" -o sim/bin/%s.vout %s%s", p -> project_name, simulation_name, src_buffer, tb_buffer);
         //printf("%s\n", cmd);
         
-        // Adds directories if needed
-        system("mkdir -p sim/waveforms");
-        system("mkdir -p sim/bin");
-        system("mkdir -p sim/log");
-
         // Makes system call
         int status = system(cmd);
 
