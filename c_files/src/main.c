@@ -27,35 +27,38 @@ int main(void) {
         for (int j = 0; j < (p -> src_count); j++) {
             src_pointer += sprintf(src_pointer, "%s ", src_files[j]);
         }
-        //printf("%s\n", src_buffer);
 
-        // Adds testebench files into buffer
+        // Adds tb files into struct
         char **tb_files = p -> tb_files;
-        char tb_buffer[1024];
-        char *tb_pointer = tb_buffer;
-        for (int j = 0; j < (p -> tb_count); j++) {
-            tb_pointer += sprintf(tb_pointer, "%s ", tb_files[j]);
-        }
-        //printf("%s\n", tb_buffer);
 
-        // Creates simulation name from project
-        char *simulation_name =  strcat(p -> project_name, "_sim");
+        // Iterates between each tb file
+        for (int k = 0; k < (p -> tb_count); k++) {
+            char *tb_file = tb_files[k];
 
-        // Creates cmd
-        char cmd[1024];
-        snprintf(cmd, sizeof(cmd), "iverilog -DVCD_PATH=\\\"sim/waveforms/%s.vcd\\\" -o sim/bin/%s.vout %s%s", p -> project_name, simulation_name, src_buffer, tb_buffer);
-        //printf("%s\n", cmd);
-        
-        // Makes system call
-        int status = system(cmd);
+            // Gets base name for each file
+            char tb_base[1024];
+            char *slash = strrchr(tb_file, '/');
+            snprintf(tb_base, sizeof(tb_base), "%s", slash ? slash + 1 : tb_file);
+            char *dot = strrchr(tb_base, '.');
+            if (dot) *dot = '\0';
 
-        // Depending on status
-        if (status == 0) {
-            char run_cmd[1024];
-            snprintf(run_cmd, sizeof(run_cmd), "vvp sim/bin/%s.vout > sim/log/%s.log", simulation_name, simulation_name);
-            system(run_cmd);
-        } else {
-            fprintf(stderr, "Compilation failed for %s\n", p -> project_name);
+            // Creates cmd
+            char cmd[1024];
+            snprintf(cmd, sizeof(cmd),
+                     "iverilog -DVCD_PATH=\\\"sim/waveforms/%s.vcd\\\" -o sim/bin/%s.vout %s%s",
+                     tb_base, tb_base, src_buffer, tb_file);
+
+            // Makes system call
+            int status = system(cmd);
+
+            // Depending on status
+            if (status == 0) {
+                char run_cmd[1024];
+                snprintf(run_cmd, sizeof(run_cmd), "vvp sim/bin/%s.vout > sim/log/%s.log", tb_base, tb_base);
+                system(run_cmd);
+            } else {
+                fprintf(stderr, "Compilation failed for %s\n", tb_base);
+            }
         }
     }
 
