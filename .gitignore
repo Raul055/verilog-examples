@@ -1,3 +1,4 @@
 *.vcd
 /build
 /sim
+*.bkp
