@@ -53,7 +53,7 @@ int search_project(char *project_directory_name) {
         // Creates directories
         char dir_cmd[1024];
         snprintf(dir_cmd, sizeof(dir_cmd),
-                 "mkdir -p sim/%s/{waveforms,bin,log}/%s",
+                 "mkdir -p sim/%s/%s/{waveforms,bin,log}",
                   project_directory_name, project_name);
         int dir_status = system(dir_cmd);
 
@@ -74,7 +74,7 @@ int search_project(char *project_directory_name) {
             // Creates cmd
             char cmd[1024];
             snprintf(cmd, sizeof(cmd),
-                     "iverilog -DVCD_PATH=\\\"sim/%s/waveforms/%s/%s.vcd\\\" -o sim/%s/bin/%s/%s.vout %s%s",
+                     "iverilog -DVCD_PATH=\\\"sim/%s/%s/waveforms/%s.vcd\\\" -o sim/%s/%s/bin/%s.vout %s%s",
                      project_directory_name, project_name, tb_base,
                      project_directory_name, project_name, tb_base, src_buffer, tb_file);
 
@@ -84,7 +84,7 @@ int search_project(char *project_directory_name) {
             // Depending on status
             if (status == 0) {
                 char run_cmd[1024];
-                snprintf(run_cmd, sizeof(run_cmd), "vvp sim/%s/bin/%s/%s.vout > sim/%s/log/%s/%s.log",
+                snprintf(run_cmd, sizeof(run_cmd), "vvp sim/%s/%s/bin/%s.vout > sim/%s/%s/log/%s.log",
                                                     project_directory_name, project_name, tb_base,
                                                     project_directory_name, project_name, tb_base);
                 system(run_cmd);
