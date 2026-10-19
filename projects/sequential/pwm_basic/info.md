@@ -14,4 +14,4 @@ Basic implementation of N-bit pulse width modulation (PWM).
 | *Output* | **pwm_out** | PWM signal |
 
 ## Block Diagram
-![block_diagram](../../doc/img/pwm%20basic.png)
+![block_diagram](../../../doc/img/pwm%20basic.png)

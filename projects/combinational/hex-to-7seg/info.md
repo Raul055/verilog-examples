@@ -12,4 +12,4 @@ Converts the hexadecimal signal comming from the switch and displays it into the
 | *Output* | **seg[7:0]** | 7-bit signal display value |
 
 ## Block Diagram
-![block_diagram](../../doc/img/hex_to_7seg.png)
+![block_diagram](../../../doc/img/hex_to_7seg.png)

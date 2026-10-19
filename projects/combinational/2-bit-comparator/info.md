@@ -12,4 +12,4 @@ Compares two 2-bit signals.
 | *Output* | **eq2** | Comparator output |
 
 ## Block Diagram
-![block_diagram](../../doc/img/2-bit-comparator.png)
+![block_diagram](../../../doc/img/2-bit-comparator.png)

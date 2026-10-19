@@ -12,4 +12,4 @@ Decodes a 2-bit binary input into one 4-bit output with an enable signal.
 | *Output* | **y[3:0]** | 4-bit decoded signal |
 
 ## Block Diagram
-![block_diagram](../../doc/img/2-to-4-binary-decoder.png)
+![block_diagram](../../../doc/img/2-to-4-binary-decoder.png)

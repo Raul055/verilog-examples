@@ -12,4 +12,4 @@ Blinks a LED every second.
 | *Output* | **led** | LED signal |
 
 ## Block Diagram
-![block_diagram](../../doc/img/led_blink.png)
+![block_diagram](../../../doc/img/led_blink.png)

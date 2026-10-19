@@ -13,4 +13,4 @@ Counts all the way up from 0 to F hexadecimal value and then down from F to 0. I
 | *Output* | **seg[7:0]** | 7-bit signal display value |
 
 ## Block Diagram
-![block_diagram](../../doc/img/hex_segment_counter.png)
+![block_diagram](../../../doc/img/hex_segment_counter.png)

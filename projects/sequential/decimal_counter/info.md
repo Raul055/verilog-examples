@@ -14,4 +14,4 @@ Counts all the way up to 9999 and writes it on the 7-segment display. It refresh
 | *Output* | **seg[7:0]** | 7-bit signal display value |
 
 ## Block Diagram
-![block_diagram](../../doc/img/decimal_counter.png)
+![block_diagram](../../../doc/img/decimal_counter.png)
