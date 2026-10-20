@@ -54,6 +54,12 @@ module pwm_basic_top_tb;
         $finish;
     end
 
+    // Prints results to console
+    initial begin
+        $monitor("time=%0t reset=%b duty_cycle=%d pwm_out=%d", $time,
+                    reset, duty_cycle, pwm_out);
+    end
+
     // Dumps .vcd file
     initial begin
         `ifdef VCD_PATH
