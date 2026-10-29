@@ -1,74 +1,87 @@
 module decimal_counter_top
-    #(parameter integer MAX_CLK_COUNT = 50_000_000)
+    #(
+        parameter FINAL_VALUE_1s=99_999_999, // 1s for 100MHz
+        parameter FINAL_VALUE_1khz=99_999   // 1kHz for 100MHz
+    )
     (
-        input wire clk, // 100MHz clk
-        input wire reset, // reset
-        output wire [3:0] an,
-        output wire [7:0] seg
+        input clk,
+        input reset,
+        input enable,
+        output [7:0] seg,
+        output [3:0] an
     );
     
-    // Register for counting clock cycles
-    localparam integer COUNTER_WIDTH = $clog2(MAX_CLK_COUNT);
-    reg [COUNTER_WIDTH-1:0] clk_counter = 0;
-    
-    // Maximum count for counter
-    localparam MAX_COUNTER_VALUE = 9999;
-    
-    // Counter of 14-bits
-    reg [13:0] counter = 0;
-    
-    // Counts every second
-    always@(posedge clk, posedge reset)
-    begin
-        // Reset button
-        if (reset)
-            begin
-                clk_counter <= 0; // reset clk counter
-                counter <= 0; // reset counter
-            end
-        
-        // Every second
-        else if (clk_counter == MAX_CLK_COUNT - 1)
-            begin
-                clk_counter <= 0; // reset counter
-                 
-                 // Reset counter value when achieved max real value
-                 if (counter > MAX_COUNTER_VALUE)
-                    counter <= 0;
-                 // Counter goes up
-                 else
-                    counter <= counter + 1;
-            end
-        
-        // Continue clk
-        else
-            clk_counter <= clk_counter + 1;
-    end
-  
-    // Digit values registers
-    wire [3:0] thousands;
-    wire [3:0] hundreds;
-    wire [3:0] tens;
-    wire [3:0] ones;
-    
-    // Gets digits from counter value
-    bin_to_bcd bcd_converter (
-        .bin(counter),
-        .thousands(thousands),
-        .hundreds(hundreds),
-        .tens(tens),
-        .ones(ones)
-    );
-  
-    // Display value
-    display_number display_digit(
+    // 1s timer
+    wire one_second_timer_done;
+    timer_parameter #(.FINAL_VALUE(FINAL_VALUE_1s)) one_second_timer (
         .clk(clk),
-        .thousands_value(thousands),
-        .hundreds_value(hundreds),
-        .tens_value(tens),
-        .ones_value(ones),
-        .an(an),
-        .seg(seg)
+        .reset(reset),
+        .enable(enable),
+        .done(one_second_timer_done)
     );
-  
+    
+    // 1kHz timer for mux
+    localparam ONE_KHZ_TIMER_ENABLE=1; // always enabled
+    wire one_khz_timer_done;
+    timer_parameter #(.FINAL_VALUE(FINAL_VALUE_1khz)) one_khz_timer (
+        .clk(clk),
+        .reset(reset),
+        .enable(ONE_KHZ_TIMER_ENABLE),
+        .done(one_khz_timer_done)
+    );
+    
+    // up-counter for anode selection
+    localparam N_up_counter=2; // for 0-3
+    wire [N_up_counter-1:0] anode_select;
+    up_counter #(.N(N_up_counter)) anode_counter (
+        .clk(clk),
+        .reset(reset),
+        .enable(one_khz_timer_done), // changes every 1kHz
+        .Q(anode_select)
+    );
+    
+    // multi-decade counter
+    wire done;
+    wire [3:0] ones, tens, hundreds, thousands;
+    multi_decade_counter decade_counter (
+        .clk(clk),
+		.reset(reset),
+		.enable(enable & one_second_timer_done), // every second
+		.ones(ones),
+		.tens(tens),
+		.hundreds(hundreds),
+		.thousands(thousands),
+		.done(done)
+    );
+    
+    // mux 4x1
+    localparam N_bits=4;
+    wire [3:0] digit;
+    mux_4x1_nbit #(.N(N_bits)) anode_mux (
+        .w0(ones),
+        .w1(tens),
+        .w2(hundreds),
+        .w3(thousands),
+        .s(anode_select),
+        .f(digit)
+    );
+    
+    // decoder for anode
+    localparam anode_decoder_bits=2;
+    localparam enable_decoder=1; // always enable
+    wire [3:0] an_out;
+    decoder #(.N(anode_decoder_bits)) anode_decoder (
+        .w(anode_select),
+        .en(enable_decoder),
+        .y(an_out)
+    );
+    assign an = ~an_out;
+        
+    // decimal to 7 segment display
+    localparam ENABLE_DP=0;
+    decimal_to_7_seg #(.enable_dp(ENABLE_DP)) decimal2sseg (
+        .decimal(digit),
+        ._7_seg(seg)
+    );
+    
 endmodule
