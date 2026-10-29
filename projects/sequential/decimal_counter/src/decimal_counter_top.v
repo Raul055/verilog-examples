@@ -21,7 +21,7 @@ module decimal_counter_top
     );
     
     // 1kHz timer for mux
-    localparam ONE_KHZ_TIMER_ENABLE=1; // always enabled
+    localparam ONE_KHZ_TIMER_ENABLE=1'b1; // always enabled
     wire one_khz_timer_done;
     timer_parameter #(.FINAL_VALUE(FINAL_VALUE_1khz)) one_khz_timer (
         .clk(clk),
@@ -68,7 +68,7 @@ module decimal_counter_top
     
     // decoder for anode
     localparam anode_decoder_bits=2;
-    localparam enable_decoder=1; // always enable
+    localparam enable_decoder=1'b1; // always enable
     wire [3:0] an_out;
     decoder #(.N(anode_decoder_bits)) anode_decoder (
         .w(anode_select),
