@@ -10,7 +10,7 @@ int search_project(char *project_directory_name);
 int main(void) {
 
     // Folder names inside projects directory
-    char *project_folder_names[] = {"combinational", "sequential"};
+    char *project_folder_names[] = {"combinational", "sequential", "fsm"};
     size_t count_folder_names = sizeof(project_folder_names) / sizeof(project_folder_names[0]);
 
     // Iterates for all project directories
